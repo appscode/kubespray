@@ -1,0 +1,24 @@
+## This file is a sample file which generated through the below commands
+# $ cd <path/to/kubespray/git/repo>
+# $ guard get webhook-config <GitHub-Organization> -o github --addr=<Free_IP_in_k8s_Cluster>:443 > roles/kubernetes/master/files/guard_auth_token_file
+
+# Sample Output
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <redacted_output>
+    server: https://<Free_IP_in_k8s_Cluster>:443/tokenreviews
+  name: guard-server
+contexts:
+- context:
+    cluster: guard-server
+    user:  <GitHub-Organization>@github
+  name: webhook
+current-context: webhook
+kind: Config
+preferences: {}
+users:
+- name:  <GitHub-Organization>@github
+  user:
+    client-certificate-data: <redacted_output>
+    client-key-data: <redacted_output>

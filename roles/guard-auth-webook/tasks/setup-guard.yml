@@ -1,0 +1,25 @@
+---
+- name: List of Master Nodes
+  shell: /usr/local/bin/kubectl get nodes | grep -i master | awk '{ print $1 }'
+  register: master_nodes
+
+- name: Label Master Nodes
+  command: /usr/local/bin/kubectl label nodes {{ item }} app=guard --overwrite=true
+  with_items: "{{ master_nodes.stdout_lines }}"
+
+- name: Copy guard-installer.yml
+  copy:
+    src: guard-installer.yml
+    dest: /tmp/guard-installer.yml
+    mode: 0640
+
+- name: Apply guard-installer.yml
+  command: /usr/local/bin/kubectl apply -f /tmp/guard-installer.yml --validate=true
+
+- name: Wait for Authentication Hook Server to start
+  wait_for:
+    port: 443
+    host: 10.233.0.27
+    state: started
+    delay: 10
+    timeout: 600

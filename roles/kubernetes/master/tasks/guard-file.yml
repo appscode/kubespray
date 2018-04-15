@@ -1,0 +1,8 @@
+---
+- name: Copy the Guard Auth Token File
+  copy:
+    src: guard_auth_token_file
+    dest: "{{ kube_token_dir }}/guard"
+    mode: 0640
+    backup: yes
+  notify: Master | set secret_changed

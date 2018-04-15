@@ -15,6 +15,9 @@
 - import_tasks: encrypt-at-rest.yml
   when: kube_encrypt_secret_data
 
+- import_tasks: guard-file.yml
+  when: kube_guard|default(false)
+
 - name: Compare host kubectl with hyperkube container
   command: "{{ docker_bin_dir }}/docker run --rm -v {{ bin_dir }}:/systembindir {{ hyperkube_image_repo }}:{{ hyperkube_image_tag }} /usr/bin/cmp /hyperkube /systembindir/kubectl"
   register: kubectl_task_compare_result

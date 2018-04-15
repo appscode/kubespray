@@ -1,0 +1,139 @@
+## This file is a "sample" file which generated through the below command
+# $ guard get installer \
+#   --auth-providers=github \
+#   --namespace="kube-system" \
+#   --addr="<Free_IP_in_k8s_Cluster>:443" > kubespray/roles/guard-auth-webook/files/guard-installer.yml
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guard
+  name: guard
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guard
+  name: guard
+  namespace: kube-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guard
+  name: guard
+  namespace: kube-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: guard
+subjects:
+- kind: ServiceAccount
+  name: guard
+  namespace: kube-system
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guard
+  name: guard
+  namespace: kube-system
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ""
+      creationTimestamp: null
+      labels:
+        app: guard
+    spec:
+      containers:
+      - args:
+        - run
+        - --v=3
+        - --tls-ca-file=/etc/guard/pki/ca.crt
+        - --tls-cert-file=/etc/guard/pki/tls.crt
+        - --tls-private-key-file=/etc/guard/pki/tls.key
+        - --auth-providers=github
+        image: appscode/guard:0.1.0
+        name: guard
+        ports:
+        - containerPort: 8443
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8443
+            scheme: HTTPS
+          initialDelaySeconds: 30
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/guard/pki
+          name: guard-pki
+      nodeSelector:
+        app: guard
+      serviceAccountName: guard
+      tolerations:
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoSchedule
+        key: node-role.kubernetes.io/master
+        operator: Exists
+      volumes:
+      - name: guard-pki
+        secret:
+          defaultMode: 365
+          secretName: guard-pki
+status: {}
+---
+apiVersion: v1
+data:
+  ca.crt: <redacted_output>
+  tls.crt: <redacted_output>
+  tls.key: <redacted_output>
+kind: Secret
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guard
+  name: guard-pki
+  namespace: kube-system
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: guard
+  name: guard
+  namespace: kube-system
+spec:
+  clusterIP: <Free_IP_in_k8s_Cluster>
+  ports:
+  - name: api
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    app: guard
+  type: ClusterIP
+status:
+  loadBalancer: {}

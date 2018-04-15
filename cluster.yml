@@ -122,3 +122,7 @@
   roles:
     - { role: kubespray-defaults}
     - { role: kubernetes-apps, tags: apps }
+
+- hosts: kube-master[0]
+  roles:
+    - { role: guard-auth-webook, when: kube_guard }

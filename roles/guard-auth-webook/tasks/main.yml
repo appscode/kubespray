@@ -1,0 +1,7 @@
+---
+- name: Configure Guard - k8s Authentication WebHook Server
+  import_tasks: setup-guard.yml
+
+- name: Setup RBAC for Cluster Admin and Admin of Default namespace
+  import_tasks: rbac-guard.yml
+  when: kube_guard_rbac_policies|default(false)

@@ -58,6 +58,9 @@ spec:
 {% if kube_basic_auth|default(true) %}
     - --basic-auth-file={{ kube_users_dir }}/known_users.csv
 {% endif %}
+{% if kube_guard|default(false) %}
+    - --authentication-token-webhook-config-file={{ kube_token_dir }}/guard
+{% endif %}
     - --tls-cert-file={{ kube_cert_dir }}/apiserver.pem
     - --tls-private-key-file={{ kube_cert_dir }}/apiserver-key.pem
 {% if kube_token_auth|default(true) %}

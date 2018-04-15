@@ -1,0 +1,16 @@
+---
+- name: Copy RBAC file for Cluster Admins
+  copy:
+    src: cluster-admin-role.yml
+    dest: /tmp/cluster-admin-role.yml
+    mode: 0640
+
+- name: Copy RBAC file for Admins for default namespace
+  copy:
+    src: default-namespace-admin-role.yml
+    dest: /tmp/default-namespace-admin-role.yml
+    mode: 0640
+
+- name: Create RBAC Roles
+  command: /usr/local/bin/kubectl apply -f /tmp/cluster-admin-role.yml -f /tmp/default-namespace-admin-role.yml --validate=true
+  ignore_errors: true
